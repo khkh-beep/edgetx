@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 project(EdgeTX)
-
+# trigger build
 set(VERSION_MAJOR "2")
 set(VERSION_MINOR "8")
 set(VERSION_REVISION "5")
