@@ -2,78 +2,35 @@ name: Run tests and package firmware
 on:
   push:
     branches:
-      - '2.6'
-      - '2.7'
       - '2.8'
-      - 'main'
-    tags:
-      - v*
-    paths-ignore:
-      - '**.md'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/workflows/nightly.yml'
-      - '.github/workflows/linux_cpn.yml'
-      - '.github/workflows/macosx_cpn.yml'
-      - '.github/workflows/win-cpn-32.yml'
-      - '.github/workflows/win_cpn-64.yml'
-      - 'companion/**'
-      - '.gitpod.yml'
-      - '.devcontainer/**'
-  pull_request:
-    branches:
-      - '2.6'
-      - '2.7'
-      - '2.8'
-      - 'main'
-    paths-ignore:
-      - '**.md'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/workflows/nightly.yml'
-      - '.github/workflows/linux_cpn.yml'
-      - '.github/workflows/macosx_cpn.yml'
-      - '.github/workflows/win-cpn-32.yml'
-      - '.github/workflows/win_cpn-64.yml'
-      - 'companion/**'
-      - '.gitpod.yml'
-      - '.devcontainer/**'
   workflow_dispatch:
 
 jobs:
   build:
     name: Run builds
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        target:
-          - tx12;tx12mk2;boxer
     container:
       image: ghcr.io/edgetx/edgetx-dev:2.9.0
       volumes:
         - ${{ github.workspace }}:/src
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Build ${{ matrix.target }}
+      - name: Build firmware
         env:
-          FLAVOR: ${{ matrix.target }}
+          FLAVOR: tx12;tx12mk2;boxer
         run: |
           echo "Running firmware build"
           ./tools/build-gh.sh
 
-      - name: Compose release filename
-        run: echo "artifact_name=edgetx-firmware-${GITHUB_REF##*/}" >> $GITHUB_ENV
-
-      - name: Package firmware ${{ matrix.target }}
-        uses: 'actions/upload-artifact@v2'
+      - name: Package firmware
+        uses: 'actions/upload-artifact@v4'
         with:
-          name: "${{ env.artifact_name }}"
+          name: edgetx-firmware-custom
           path: |
-            fw.json
-            LICENSE
             *.bin
           retention-days: 15
           if-no-files-found: error
