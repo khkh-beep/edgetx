@@ -9,22 +9,15 @@ jobs:
   build:
     name: Run builds
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/edgetx/edgetx-dev:2.9.0
-      volumes:
-        - ${{ github.workspace }}:/src
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Build firmware
-        env:
-          FLAVOR: tx12;tx12mk2;boxer
+      - name: Build firmware inside Docker
         run: |
-          echo "Running firmware build"
-          ./tools/build-gh.sh
+          docker run --rm -v ${{ github.workspace }}:/src -e FLAVOR="tx12;tx12mk2;boxer" ghcr.io/edgetx/edgetx-dev:2.9.0 bash -c "cd /src && ./tools/build-gh.sh"
 
       - name: Package firmware
         uses: 'actions/upload-artifact@v4'
