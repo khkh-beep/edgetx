@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.13)
 project(EdgeTX)
 
@@ -57,7 +56,7 @@ if(EdgeTX_SUPERBUILD)
     EXCLUDE_FROM_ALL TRUE
     )
 
-  # ARM targets
+  # ARM targets (Оптимізовано для STM32F407VET: LUA залишено, решту важкого вирізано)
   ExternalProject_Add(arm-none-eabi
     SOURCE_DIR ${CMAKE_SOURCE_DIR}
     BINARY_DIR ${CMAKE_BINARY_DIR}/arm-none-eabi
@@ -66,6 +65,11 @@ if(EdgeTX_SUPERBUILD)
       -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/arm-none-eabi.cmake
       -DEdgeTX_SUPERBUILD:BOOL=0
       -DNATIVE_BUILD:BOOL=0
+      -DTRANSLATIONS:STRING=EN
+      -DLUA:BOOL=ON
+      -DHELI:BOOL=OFF
+      -DGVARS:BOOL=OFF
+      -DFLIGHT_MODES:BOOL=OFF
     INSTALL_COMMAND  ""
     EXCLUDE_FROM_ALL TRUE
     )
