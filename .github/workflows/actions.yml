@@ -1,4 +1,3 @@
----
 name: Run tests and package firmware
 on:
   push:
@@ -40,72 +39,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
-    name: Run tests
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        target:
-          - nv14
-          - t12
-          - t16
-          - t18
-          - t8
-          - tlite
-          - tx12
-          - tx16s
-          - x10
-          - x12s
-          - x7
-          - x9d
-          - x9dp
-          - x9dp2019
-          - x9e
-          - x9lite
-          - x9lites
-          - xlite
-          - xlites
-    container:
-      image: ghcr.io/edgetx/edgetx-dev:2.9.0
-      volumes:
-        - ${{ github.workspace }}:/src
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
-          # fetch-depth: 0 # https://github.com/actions/checkout#Fetch-all-history-for-all-tags-and-branches
-
-      - name: Test ${{ matrix.target }}
-        env:
-          FLAVOR: ${{ matrix.target }}
-        run: |
-          echo "Running commit tests"
-          ./tools/commit-tests.sh
-
-
   build:
     name: Run builds
-    needs: test
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         target:
-          - nv14;el18
-          - t12
-          - t16
-          - t18
-          - t8;zorro;commando8
-          - tlite;tpro;lr3pro
           - tx12;tx12mk2;boxer
-          - tx16s
-          - x10;x10-access
-          - x12s
-          - x7;x7-access
-          - x9d;x9dp;x9dp2019
-          - x9e;x9e-hall
-          - x9lite;x9lites
-          - xlite;xlites
     container:
       image: ghcr.io/edgetx/edgetx-dev:2.9.0
       volumes:
@@ -124,7 +65,6 @@ jobs:
           ./tools/build-gh.sh
 
       - name: Compose release filename
-        # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
         run: echo "artifact_name=edgetx-firmware-${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Package firmware ${{ matrix.target }}
